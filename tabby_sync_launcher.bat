@@ -1,4 +1,5 @@
 @echo off
+chcp 65001 >nul
 setlocal enabledelayedexpansion
 
 :: 设置GitHub Gist ID和Token
@@ -46,7 +47,15 @@ if not exist "%APPDATA%\Tabby\logs" (
 
 :: 在启动Tabby前同步配置（下载最新配置）
 echo 正在同步Tabby配置...
-python "%SCRIPT_PATH%" --gist-id %GIST_ID% --token %GITHUB_TOKEN%
+
+:: 检查是否需要自动创建Gist ID
+if "%GIST_ID%"=="your_gist_id_here" (
+    echo 未设置Gist ID，将自动创建...
+    python "%SCRIPT_PATH%" --token %GITHUB_TOKEN% --save-gist-id "%~f0"
+) else (
+    python "%SCRIPT_PATH%" --gist-id %GIST_ID% --token %GITHUB_TOKEN%
+)
+
 if %ERRORLEVEL% neq 0 (
     echo 同步配置失败，但仍将继续启动Tabby。
 )
@@ -63,7 +72,15 @@ if %ERRORLEVEL% equ 0 goto wait_loop
 
 :: Tabby已关闭，上传配置
 echo Tabby已关闭，正在上传配置...
-python "%SCRIPT_PATH%" --gist-id %GIST_ID% --token %GITHUB_TOKEN% --force-upload
+
+:: 检查是否需要自动创建Gist ID（理论上此时应该已经创建，但为了健壮性仍然检查）
+if "%GIST_ID%"=="your_gist_id_here" (
+    echo 未设置Gist ID，将自动创建并上传...
+    python "%SCRIPT_PATH%" --token %GITHUB_TOKEN% --force-upload --save-gist-id "%~f0"
+) else (
+    python "%SCRIPT_PATH%" --gist-id %GIST_ID% --token %GITHUB_TOKEN% --force-upload
+)
+
 if %ERRORLEVEL% neq 0 (
     echo 上传配置失败。
     pause
