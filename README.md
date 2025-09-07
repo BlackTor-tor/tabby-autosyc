@@ -1,135 +1,187 @@
-# Tabby 配置同步工具
+# Tabby Auto-Sync
 
-这个工具可以帮助你在多台电脑之间同步 Tabby 终端工具的配置文件，通过 GitHub Gist 作为中间存储。它能够自动处理配置冲突，并在 Tabby 启动时下载最新配置，关闭时上传当前配置。
+🚀 自动同步 Tabby 终端配置文件的工具，实现多设备间配置的无缝同步。
 
-## 功能特点
+## ✨ 功能特性
 
-- 在 Tabby 启动时自动下载最新配置
-- 在 Tabby 关闭时自动上传当前配置
-- 智能处理配置冲突，合并不同设备的配置
-- 高效同步，只在配置有变更时才进行上传/下载
-- 自动备份本地配置，防止意外丢失
-- 支持 Windows、macOS 和 Linux 系统
-- 直观显示上传和下载进度
-- 保存详细的同步日志，方便问题排查
+- 🚀 自动检测 Tabby 启动和关闭
+- ☁️ 支持 GitHub Gist 和 Google Cloud Storage
+- 🔄 智能冲突解决机制
+- 💾 自动备份配置文件
+- 🖥️ 专为 Windows 系统优化
+- 📱 友好的图形界面，一键启动
+- ⚡ 轻量级，资源占用少
 
-## 前提条件
+## 📋 系统要求
 
-- Python 3.6 或更高版本
-- 安装了 `pyyaml` 和 `requests` Python 包
-- GitHub 账号和个人访问令牌（Personal Access Token）
-pyyaml>=6.0
-requests>=2.28.0
-tqdm>=4.64.0
+- Windows 10以上版本
+- Python 3.7+
+- Tabby 终端
+- GitHub 账号
 
-## 安装步骤
+## 🚀 快速开始
 
-### 1. 创建 GitHub 个人访问令牌
+### 下载.exe文件
+1. ** 下载 `TabbyAutoSync.exe` 单个文件**
+   - 无需安装，放在任意文件夹中
 
-1. 登录你的 GitHub 账号
-2. 点击右上角头像 -> Settings -> Developer settings -> Personal access tokens -> Tokens (classic)
-3. 点击 "Generate new token" -> "Generate new token (classic)"
-4. 为令牌添加描述，例如 "Tabby Config Sync"
-5. 勾选 `gist` 权限
-6. 点击 "Generate token" 按钮
-7. 复制生成的令牌（注意：这是你唯一能看到令牌的机会，请妥善保存）
+2. **双击运行**
+   ```
+   双击 TabbyAutoSync.exe
+   ```
 
-### 2. 创建 GitHub Gist（可选）
+3. **配置 GitHub Token**
+   - 程序会提示您配置 GitHub Token
+   - 访问 https://github.com/settings/tokens
+   - 创建新 token，勾选 `gist` 权限
+   - 在程序中输入 token
 
-你可以预先创建一个 Gist 来存储配置，或者让脚本自动创建：
+## 二次开发
 
-1. 访问 https://gist.github.com/
-2. 创建一个新的 Gist，添加一个名为 `config.yaml` 的文件
-3. 设置为 Secret Gist
-4. 点击 "Create secret gist"
-5. 从浏览器地址栏复制 Gist ID（URL 中最后一部分，例如 `https://gist.github.com/yourusername/abcdef1234567890` 中的 `abcdef1234567890`）
+1. **核心代码：launcher.py**
+   ```
+   自行修改想要的功能，修改完代码后执行"build.bat"进行构建打包新的版本发布即可。
+   ```
 
-### 3. 配置同步脚本
+   打包完成后会生成：
+   - `dist/TabbyAutoSync.exe` - 单个可执行文件
 
-1. 编辑 `tabby_sync_launcher.bat` 文件
-2. 将 `your_gist_id_here` 替换为你的 Gist ID
-3. 将 `your_github_token_here` 替换为你的 GitHub 个人访问令牌
-4. 如果 Tabby 安装在非默认位置，请更新启动路径
+2. **使用打包的程序**
+   - 复制 `TabbyAutoSync.exe` 到任何 Windows 电脑
+   - 双击运行（无需 Python 环境）
+   - 按提示配置 GitHub Token
 
-## 使用方法
+## ⚙️ 配置说明
 
-### 通过启动器启动 Tabby
+### GitHub Gist 配置（推荐）
 
-不要直接启动 Tabby，而是使用 `tabby_sync_launcher.bat` 来启动：
+1. **获取 GitHub Token**
+   - 访问 https://github.com/settings/tokens
+   - 点击 "Generate new token (classic)"
+   - 勾选 `gist` 权限
+   - 复制生成的 token
 
-1. 双击 `tabby_sync_launcher.bat`
-2. 脚本会先同步配置，然后启动 Tabby
-3. 当你关闭 Tabby 时，脚本会自动上传配置
+2. **配置文件设置**
+   ```ini
+   [cloud_storage]
+   storage_type = github_gist
+   github_token = ghp_xxxxxxxxxxxxxxxxxxxx
+   gist_id =  # 留空，程序会自动创建
+   ```
 
-### 手动同步配置
+### Google Cloud Storage 配置
 
-你也可以使用以下命令手动同步配置：
+1. **创建 GCS Bucket**
+   - 在 Google Cloud Console 创建项目
+   - 创建 Storage Bucket
+   - 下载服务账号密钥文件
 
-```bash
-# 正常同步（智能决定上传或下载）
-python tabby_config_sync.py --gist-id YOUR_GIST_ID --token YOUR_GITHUB_TOKEN
+2. **配置文件设置**
+   ```ini
+   [cloud_storage]
+   storage_type = google_cloud
+   bucket_name = your-bucket-name
+   credentials_path = path/to/service-account-key.json
+   ```
 
-# 强制上传本地配置
-python tabby_config_sync.py --gist-id YOUR_GIST_ID --token YOUR_GITHUB_TOKEN --force-upload
+### 冲突解决策略
 
-# 强制下载远程配置
-python tabby_config_sync.py --gist-id YOUR_GIST_ID --token YOUR_GITHUB_TOKEN --force-download
+```ini
+[sync]
+# 冲突解决策略
+conflict_strategy = newest  # 推荐设置
+
+# 可选值：
+# newest  - 使用最新修改的配置（推荐）
+# oldest  - 使用最旧的配置
+# local   - 总是使用本地配置
+# cloud   - 总是使用云端配置
+# merge   - 尝试自动合并配置
+# manual  - 手动选择解决方案
 ```
 
-## 创建快捷方式（可选）
-
-为了更方便地使用同步启动器，你可以创建一个桌面快捷方式：
-
-1. 右键点击 `tabby_sync_launcher.bat`
-2. 选择 "创建快捷方式"
-3. 将快捷方式移动到桌面或其他方便的位置
-4. 右键点击快捷方式 -> 属性
-5. 可以更改图标为 Tabby 的图标（通常位于 `%LOCALAPPDATA%\Programs\Tabby\Tabby.exe`）
-
-## 故障排除
-
-### 同步失败
-
-- 检查你的网络连接
-- 确认 GitHub 个人访问令牌和 Gist ID 是否正确
-- 查看日志文件获取详细错误信息
-  - 日志文件位置：`%APPDATA%\Tabby\logs\tabby_sync.log`（Windows）
-  - 或脚本目录下的`logs/tabby_sync.log`（如果使用自定义配置目录）
-
-### 配置冲突
-
-如果在不同设备上对配置进行了冲突的修改，脚本会尝试智能合并。如果你不满意合并结果，可以：
-
-1. 使用备份文件（位于 Tabby 配置目录，格式为 `config.yaml.bak.TIMESTAMP`）恢复之前的配置
-2. 手动编辑配置文件解决冲突
-3. 使用 `--force-upload` 或 `--force-download` 参数强制使用某一版本
-
-## 高级选项
-
-同步脚本支持以下高级选项：
+## 📁 项目结构
 
 ```
-python tabby_config_sync.py --help
+tabby-autosync/
+├── src/                    # 源代码目录
+│   ├── launcher.py   # 核心代码
+│   ├── build.bat       # 一键打包脚本
+│   ├── requirements.txt  # Python依赖
+│   ├── dist  # 打包输出目录
+│      └── TabbyAutoSync.exe # 打包后的可执行文件
+│      └── logs/                   # 日志文件目录
+│      └── backups/             # 配置备份目录
+│      └── config.ini             # 程序配置文件
+└── README.md                # 项目说明
 ```
 
-- `--no-progress`：禁用进度条显示
-- `--debug`：启用详细的调试日志
-- `--force-upload`：强制上传本地配置到远程，忽略远程更改
-- `--force-download`：强制下载远程配置到本地，忽略本地更改
+## 🔧 工作原理
 
-## 安全注意事项
+1. **自动检测**：检测 Tabby 配置文件位置（`%APPDATA%/Tabby/config.yaml`）
+2. **进程监控**：使用 `psutil` 监控 Tabby 进程启动和关闭
+3. **智能同步**：
+   - Tabby 启动时 → 从云端同步最新配置
+   - Tabby 关闭时 → 上传本地配置到云端
+4. **冲突处理**：多种策略自动处理配置冲突
+5. **安全备份**：每次同步前自动创建本地备份
 
-- 不要将你的 GitHub 个人访问令牌分享给他人
-- 确保将 Gist 设置为私有（Secret Gist）
-- 定期更换 GitHub 个人访问令牌
+## ❓ 常见问题
 
-## 卸载
+### Q: 如何获取 GitHub Token？
+A: 访问 https://github.com/settings/tokens → Generate new token → 勾选 `gist` 权限
 
-如果你不再需要此同步工具，只需：
+### Q: 程序无法检测到 Tabby 配置文件？
+A: 确保 Tabby 已安装并至少运行过一次，配置文件位于 `%APPDATA%/Tabby/config.yaml`
 
-1. 删除 `tabby_config_sync.py` 和 `tabby_sync_launcher.bat` 文件
-2. 删除 Tabby 配置目录中的 `.sync_metadata.json` 文件
+### Q: GitHub Gist 同步失败？
+A: 检查网络连接和 GitHub Token 是否正确，确保 Token 有 `gist` 权限
 
-## 许可证
+### Q: 同步时出现冲突怎么办？
+A: 程序会根据设置的策略自动处理，建议使用 `newest` 策略（使用最新的配置）
 
-此工具使用 MIT 许可证。
+### Q: 如何备份现有配置？
+A: 程序会在每次同步前自动创建备份，存储在 `backups/` 目录中
+
+### Q: 可以在多台电脑上使用吗？
+A: 可以！这正是本工具的设计目的。在每台电脑上配置相同的云存储设置即可
+
+## 🎯 使用场景
+
+### 场景1：办公室和家里两台电脑
+1. 在办公室电脑上首次设置并上传配置
+2. 在家里电脑上下载配置并开始监控
+3. 日常使用时配置会自动同步
+
+### 场景2：多台设备频繁切换
+设置冲突策略为 `manual`，在配置冲突时手动选择最合适的版本
+
+### 场景3：团队共享基础配置
+使用 GitHub Gist 分享基础配置，团队成员可以在此基础上个性化定制
+
+## 🔧 故障排除
+
+### 检查日志
+查看 `logs/tabby_sync.log` 文件获取详细错误信息
+
+### 重置配置
+删除 `config.ini` 中的 `gist_id`，程序会创建新的 Gist
+
+## 📝 功能日志
+
+### v2.0.0
+- ✅ 支持 GitHub Gist 和 Google Cloud Storage
+- ✅ 简化用户操作流程
+- ✅ 优化用户体验
+
+### v1.0.0
+- ✅ 基础功能实现
+- ✅ 自动进程监控
+- ✅ 本地云存储同步
+- ✅ 冲突解决机制
+
+## 📄 许可证
+
+MIT License
+
+如有问题或建议，请创建 Issue。
