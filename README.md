@@ -113,7 +113,7 @@ tabby-autosync/
 │      └── logs/                   # 日志文件目录
 │      └── backups/             # 配置备份目录
 │      └── config.ini             # 程序配置文件
-│   ├── LICENSE  # 许可证
+├── LICENSE  # 许可证
 └── README.md                # 项目说明
 ```
 
